@@ -22,6 +22,7 @@ class BplSpider(scrapy.Spider):
     def parse_bpl(self, response):
         yield {            
             'season': response.css('.match-details-table tbody tr td a::text')[2].get(),
+            'match_no': response.css('.description::text').get().split(' ')[0],
             'team_1': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .team p::text').get(),
             'team_1_score': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .team .score::text')[0].get(),
             'team_2': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .team p::text')[1].get(),
