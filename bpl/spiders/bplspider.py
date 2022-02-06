@@ -17,13 +17,15 @@ class BplSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        for link in response.css('.match-info-link-FIXTURES::attr(href)'):            
-            yield response.follow(link.get(), callback=self.parse_bpl)
+        for i, link in enumerate(response.css('.match-info-link-FIXTURES::attr(href)')):            
+            yield response.follow(link.get(), callback=self.parse_bpl, meta={'id':i, 'r':response.url})
 
     def parse_bpl(self, response):
-        yield {            
+        yield {                        
+            'id': int(str(self.start_urls.index(response.meta.get('r'))) + str(response.meta.get('id'))),
             'season': response.css('.match-details-table tbody tr td a::text')[2].get(),
             'match_no': response.css('.description::text').get().split(' ')[0],
+            'date': response.css('.description::text').get()[-11:],
             'team_1': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .team p::text').get(),
             'team_1_score': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .team .score::text')[0].get(),
             'team_2': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .team p::text')[1].get(),
@@ -33,8 +35,7 @@ class BplSpider(scrapy.Spider):
             'toss_decision' : ' '.join(response.css('.match-details-table tbody tr td::text')[1].get().split(' ')[-2:]),
             'winner': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .status-text span::text').get().split(' ')[0],        
             'venue': response.css('.match-details-table tbody tr td a::text').get(),
-            'city': response.css('.match-details-table tbody tr td a::text').get().split(' ')[-1],
-            'date': response.css('.description::text').get()[-11:],
+            'city': response.css('.match-details-table tbody tr td a::text').get().split(' ')[-1],            
             'win_by_wickets': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .status-text span::text').get().split(' ')[3] if 'wickets' == ''.join(response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .status-text span::text').get().split(' ')[4]) else 0,
             'win_by_runs': response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .status-text span::text').get().split(' ')[3] if 'runs' == ''.join(response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .status-text span::text').get().split(' ')[4]) else 0,
             'result': ' '.join(response.css('.match-info.match-info-MATCH.match-info-MATCH-half-width .status-text span::text').get().split(' ')[3:5]),
@@ -57,14 +58,15 @@ class BatsmanSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        for link in response.css('.match-info-link-FIXTURES::attr(href)'):            
-            yield response.follow(link.get(), callback=self.parse_bpl)
+        for i, link in enumerate(response.css('.match-info-link-FIXTURES::attr(href)')):       
+            yield response.follow(link.get(), callback=self.parse_bpl, meta={'id':i, 'r':response.url})
 
     def parse_bpl(self, response):
         for tables in response.css('.batsman tbody'):
             for row in tables.css('tr')[:-1]:   
                 try:                                    
                     yield{       
+                        'id': int(str(self.start_urls.index(response.meta.get('r'))) + str(response.meta.get('id'))),
                         'season': response.css('.match-details-table tbody tr td a::text')[2].get(),  
                         'match_no': response.css('.description::text').get().split(' ')[0],    
                         'date': response.css('.description::text').get()[-11:],   
@@ -94,14 +96,15 @@ class BowlerSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        for link in response.css('.match-info-link-FIXTURES::attr(href)'):            
-            yield response.follow(link.get(), callback=self.parse_bpl)
+        for i, link in enumerate(response.css('.match-info-link-FIXTURES::attr(href)')):        
+            yield response.follow(link.get(), callback=self.parse_bpl, meta={'id':i, 'r':response.url})
 
     def parse_bpl(self, response):
         for tables in response.css('.bowler tbody'):
             for row in tables.css('tr')[:-1]:   
                 try:                                    
                     yield{       
+                        'id': int(str(self.start_urls.index(response.meta.get('r'))) + str(response.meta.get('id'))),
                         'season': response.css('.match-details-table tbody tr td a::text')[2].get(),  
                         'match_no': response.css('.description::text').get().split(' ')[0],    
                         'date': response.css('.description::text').get()[-11:],   
